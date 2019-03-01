@@ -670,6 +670,75 @@ class ConnectionTests: XCTestCase {
             XCTAssertEqual(polygon.polygon.points[3].y, 200)
         }.wait()
     }
+
+    // Stores the current date in timestamp and timestamptz fields and compares it with the result of now()
+    func testTimestampDecode() throws {
+        enum Error: Swift.Error {
+            case noRowsFound
+        }
+
+        let conn = try PostgreSQLConnection.makeTest()
+        struct TimestampTest: PostgreSQLTable, Equatable {
+            static let sqlTableIdentifierString = "timestamptest"
+            var ts: Date // timestamp
+            var tstz: Date // timestamptz
+            var tsNow: Date? // now() as timestamp
+            var tstzNow: Date? // now() as timestamptz
+        }
+
+        defer { try? conn.drop(table: TimestampTest.self).ifExists().run().wait() }
+        try conn.create(table: TimestampTest.self)
+            .column(for: \TimestampTest.ts, type: .timestamp)
+            .column(for: \TimestampTest.tstz, type: .timestamptz)
+            .column(for: \TimestampTest.tsNow, type: .timestamp, .default(.function(.function("now", []))))
+            .column(for: \TimestampTest.tstzNow, type: .timestamptz, .default(.function(.function("now", []))))
+            .run().wait()
+
+        let date = Date()
+
+        let test = TimestampTest(ts: date, tstz: date, tsNow: nil, tstzNow: nil)
+        try conn.insert(into: TimestampTest.self).value(test).run().wait()
+        let fetched = try conn.select().all().from(TimestampTest.self).first(decoding: TimestampTest.self).unwrap(or: Error.noRowsFound).wait()
+
+        let timeInterval = date.timeIntervalSinceReferenceDate
+        let ts = fetched.ts.timeIntervalSinceReferenceDate
+        let tstz = fetched.tstz.timeIntervalSinceReferenceDate
+        let tsNow = fetched.tsNow?.timeIntervalSinceReferenceDate ?? 0.0
+        let tstzNow = fetched.tstzNow?.timeIntervalSinceReferenceDate ?? 0.0
+
+        XCTAssert(abs(ts - timeInterval) < 1.0)
+        XCTAssert(abs(tstz - timeInterval) < 1.0)
+        XCTAssert(abs(tsNow - timeInterval) < 1.0)
+        XCTAssert(abs(tstzNow - timeInterval) < 1.0)
+    }
+
+    static var allTests = [
+        ("testBenchmark", testBenchmark),
+        ("testVersion", testVersion),
+        ("testSelectTypes", testSelectTypes),
+        ("testStruct", testStruct),
+        ("testNull", testNull),
+        ("testGH24", testGH24),
+        ("testURLParsing", testURLParsing),
+        ("testGH46", testGH46),
+        ("testDataDecoder", testDataDecoder),
+        ("testRowDecoder", testRowDecoder),
+        ("testRowCodableNested", testRowCodableNested),
+        ("testRowCodableEmptyKeyed", testRowCodableEmptyKeyed),
+        ("testRowCodableTypes", testRowCodableTypes),
+        ("testTimeTz", testTimeTz),
+        ("testListen", testListen),
+        ("testSum", testSum),
+        ("testOrderBy", testOrderBy),
+        ("testInvalidDate", testInvalidDate),
+        ("testEmptyArray", testEmptyArray),
+        ("testZeroNumeric", testZeroNumeric),
+        ("testNumericDecode", testNumericDecode),
+        ("testClosureRetainCycle", testClosureRetainCycle),
+        ("testGH125", testGH125),
+        ("testPolygon", testPolygon),
+        ("testTimestampDecode", testTimestampDecode),
+    ]
 }
 
 extension PostgreSQLConnection {
