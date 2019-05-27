@@ -18,7 +18,7 @@ extension UUID: PostgreSQLDataTypeStaticRepresentable {
 
 extension Date: PostgreSQLDataTypeStaticRepresentable {
     /// See `PostgreSQLDataTypeStaticRepresentable`.
-    public static var postgreSQLDataType: PostgreSQLDataType { return .timestamp }
+    public static var postgreSQLDataType: PostgreSQLDataType { return .timestamptz }
 }
 
 extension Int: PostgreSQLDataTypeStaticRepresentable {
