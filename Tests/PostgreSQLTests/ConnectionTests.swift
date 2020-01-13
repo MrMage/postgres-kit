@@ -727,35 +727,6 @@ class ConnectionTests: XCTestCase {
         XCTAssertEqual(1, result.count)
         XCTAssertEqual([nil, "foo", nil, "bar"], result[0].arr)
     }
-
-    static var allTests = [
-        ("testBenchmark", testBenchmark),
-        ("testVersion", testVersion),
-        ("testSelectTypes", testSelectTypes),
-        ("testStruct", testStruct),
-        ("testNull", testNull),
-        ("testGH24", testGH24),
-        ("testURLParsing", testURLParsing),
-        ("testGH46", testGH46),
-        ("testDataDecoder", testDataDecoder),
-        ("testRowDecoder", testRowDecoder),
-        ("testRowCodableNested", testRowCodableNested),
-        ("testRowCodableEmptyKeyed", testRowCodableEmptyKeyed),
-        ("testRowCodableTypes", testRowCodableTypes),
-        ("testTimeTz", testTimeTz),
-        ("testListen", testListen),
-        ("testSum", testSum),
-        ("testOrderBy", testOrderBy),
-        ("testInvalidDate", testInvalidDate),
-        ("testEmptyArray", testEmptyArray),
-        ("testZeroNumeric", testZeroNumeric),
-        ("testNumericDecode", testNumericDecode),
-        ("testClosureRetainCycle", testClosureRetainCycle),
-        ("testGH125", testGH125),
-        ("testPolygon", testPolygon),
-        ("testTimestampDecode", testTimestampDecode),
-        ("testGH141", testGH141),
-    ]
 }
 
 extension PostgreSQLConnection {

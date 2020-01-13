@@ -20,6 +20,7 @@ extension ConnectionTests {
         ("testNumericDecode", testNumericDecode),
         ("testOrderBy", testOrderBy),
         ("testPolygon", testPolygon),
+        ("testTimestampDecode", testTimestampDecode),
         ("testRowCodableEmptyKeyed", testRowCodableEmptyKeyed),
         ("testRowCodableNested", testRowCodableNested),
         ("testRowCodableTypes", testRowCodableTypes),
