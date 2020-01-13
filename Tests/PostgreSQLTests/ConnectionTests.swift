@@ -712,6 +712,22 @@ class ConnectionTests: XCTestCase {
         XCTAssert(abs(tstzNow - timeInterval) < 1.0)
     }
 
+    func testGH141() throws {
+        let conn = try PostgreSQLConnection.makeTest()
+        defer { conn.close() }
+
+        struct Test: Decodable {
+            let arr: [String?]
+        }
+
+        let result = try conn.raw("SELECT ARRAY[NULL, 'foo', NULL, 'bar'] AS arr")
+            .all(decoding: Test.self)
+            .wait()
+
+        XCTAssertEqual(1, result.count)
+        XCTAssertEqual([nil, "foo", nil, "bar"], result[0].arr)
+    }
+
     static var allTests = [
         ("testBenchmark", testBenchmark),
         ("testVersion", testVersion),
@@ -738,6 +754,7 @@ class ConnectionTests: XCTestCase {
         ("testGH125", testGH125),
         ("testPolygon", testPolygon),
         ("testTimestampDecode", testTimestampDecode),
+        ("testGH141", testGH141),
     ]
 }
 
